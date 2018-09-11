@@ -22,7 +22,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
-    private shoppingCartService: ShoppingCartService
+    private ShoppingCartService: ShoppingCartService
   ) {
     this.productService
       .getAll()
@@ -41,9 +41,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.subscription = (await this.shoppingCartService.getCart())
-      .valueChanges()
-      .subscribe(cart => (this.cart = cart));
+    this.subscription = (await this.ShoppingCartService.getCart()).subscribe(
+      cart => (this.cart = cart)
+    );
   }
 
   ngOnDestroy() {
