@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { AngularFireDatabase, AngularFireObject } from "angularfire2/database";
 import { Product } from "./models/product";
 import "rxjs/add/operator/take";
+import { map } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { ShoppingCart } from "src/app/models/shopping-cart";
 
@@ -17,13 +18,28 @@ export class ShoppingCartService {
     });
   }
 
-  async getCart(): Promise<AngularFireObject<ShoppingCart>> {
+  // async getCart1(){
+
+  //   let cart$: Observable<any>;
+  //   let cartId = await this.getOrCreateCartId();
+  //   let cartfb$ = this.db.object('/shopping-carts/'+cartId);
+  //   cart$ = cartfb$.valueChanges();
+  //    cart$.subscribe(cart=> {
+  //       console.log(cart.items);
+  //   });
+  // }
+  async getCart(): Promise<Observable<ShoppingCart>> {
     let cartId = await this.getOrCreateCartId();
-    return this.db.object("/shopping-carts/" + cartId);
+
+    return this.db
+      .object("/shopping-carts/" + cartId)
+      .valueChanges()
+      .pipe(map(x => new ShoppingCart(x["items"])));
   }
 
   private async getOrCreateCartId(): Promise<string> {
     let cartId = localStorage.getItem("cartId");
+
     if (cartId) return cartId;
 
     let result = await this.create();
@@ -35,25 +51,29 @@ export class ShoppingCartService {
     return this.db.object("/shopping-carts/" + cartId + "/items/" + productId);
   }
 
-  private async updateQuantity(product: Product, change: number) {
+  private async updateItem(product: Product, change: number) {
     let quantity = 0;
     let item$: Observable<any>;
     let cartId = await this.getOrCreateCartId();
-    let itemfb$ = this.getItem(cartId, product.$key);
+    let itemfb$ = this.getItem(cartId, product.key);
     item$ = itemfb$.valueChanges();
 
     item$.take(1).subscribe(item => {
-      //if(item.$exists())
       if (item != null) quantity = item.quantity;
-      itemfb$.update({ product: product, quantity: quantity + change });
+      itemfb$.update({
+        title: product.title,
+        imageUrl: product.imageUrl,
+        price: product.price,
+        quantity: quantity + change
+      });
     });
   }
 
   async addToCart(product: Product) {
-    this.updateQuantity(product, 1);
+    this.updateItem(product, 1);
   }
 
   async removeFromCart(product: Product) {
-    this.updateQuantity(product, -1);
+    this.updateItem(product, -1);
   }
 }

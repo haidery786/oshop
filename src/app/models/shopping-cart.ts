@@ -12,14 +12,14 @@ export class ShoppingCart {
       let item = itemsMap[productId];
       let x = new ShoppingCartItem({
         ...item,
-        $key: productId
+        key: productId
       });
       this.items.push(x);
     }
   }
 
   getQuantity(product: Product) {
-    let item = this.itemsMap[product.$key];
+    let item = this.itemsMap[product.key];
     return item ? item.quantity : 0;
   }
 

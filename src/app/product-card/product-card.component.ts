@@ -8,7 +8,7 @@ import { ShoppingCart } from "../models/shopping-cart";
   templateUrl: "./product-card.component.html",
   styleUrls: ["./product-card.component.css"]
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input("product")
   product: Product;
   @Input("show-actions")
@@ -17,6 +17,9 @@ export class ProductCardComponent {
   shoppingCart: ShoppingCart;
 
   constructor(private cartService: ShoppingCartService) {}
+  ngOnInit() {
+    console.log(this.product);
+  }
 
   addToCart() {
     this.cartService.addToCart(this.product);
