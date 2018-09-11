@@ -3,27 +3,19 @@
   <img *ngIf="product.imageUrl" class="card-img-top" [src]="product.imageUrl" alt="{{product.title}}">
   <div class="card-body">
     <h5 class="card-title">{{product.title}}</h5>
-    <p class="card-text">{{product.price | currency}}</p>
+    <p class="card-text">{{product.price | currency: 'GBP'}}</p>
   </div>
-  <div *ngIf="showActions" class="card-footer">
-      <button *ngIf="getQuantity() === 0; else updateQuantity" 
+  <div *ngIf="showActions && shoppingCart" class="card-footer">
+      <button *ngIf="shoppingCart.getQuantity(product) === 0; else updateQuantity" 
               (click)="addToCart()" 
               class="btn btn-secondary btn-block">
         Add to Cart
       </button>
+      <!-- <button (click)="getQuantity(product)" class="btn btn-primary" >Get Quantity</button> -->
 
       <ng-template #updateQuantity>
-        <div class="row no-gutters">
-          <div class="col-2">
-            <button class="btn btn-secondary btn-block" (click) = "removeFromCart()"  >-</button>
-          </div>
-          <div class="col text-center">
-              {{ getQuantity() }} in cart
-          </div>
-          <div class="col-2">
-              <button class="btn btn-secondary btn-block" (click)="addToCart()">+</button>
-            </div>
-        </div>
+        <product-quantity [product]="product" [shopping-cart]="shoppingCart">          
+        </product-quantity>
       </ng-template>
       
   </div>

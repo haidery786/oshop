@@ -14,24 +14,13 @@ import { AngularFireObject } from '../../../node_modules/angularfire2/database';
 export class BsNavbarComponent implements OnInit {
  
   appUser: AppUser;
-  cart$: any;
-  shoppingTotalItemsCount: number;
+  cart$: Observable<ShoppingCart>;
 
-  
-  constructor(private auth: AuthService , private shoppingCartService : ShoppingCartService) { 
-  }
+  constructor(private auth: AuthService , private shoppingCartService : ShoppingCartService) { }
 
   async ngOnInit(){
     this.auth.appUser$.subscribe(appUser => this.appUser = appUser);  
-    
-    let cartfb$ = await this.shoppingCartService.getCart();
-    this.cart$ = cartfb$.valueChanges()
-    .subscribe( cart =>{
-        this.shoppingTotalItemsCount = 0;
-        for( let productId in cart.items)
-        this.shoppingTotalItemsCount += cart.items[productId].quantity;
-    });
-
+    this.cart$ = await this.shoppingCartService.getCart();    
     
   }
   
