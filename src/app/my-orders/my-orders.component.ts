@@ -4,43 +4,42 @@ import { AuthService } from "../auth.service";
 import { switchMap, map } from "rxjs/operators";
 import "rxjs/add/operator/switchMap";
 import { Subscription } from "rxjs";
+import { AngularFireDatabase } from "../../../node_modules/angularfire2/database";
 
 @Component({
   selector: "app-my-orders",
   templateUrl: "./my-orders.component.html",
   styleUrls: ["./my-orders.component.css"]
 })
-export class MyOrdersComponent {
-  //implements OnInit, OnDestroy
+export class MyOrdersComponent implements OnInit, OnDestroy {
+  
   orders;
-  orders$;
-  userId: string;
+  userId;
+  //orders$;
   subscription: Subscription;
+  userSubscription: Subscription;
 
   constructor(
-    private orderService: OrderService,
-    private authService: AuthService
-  ) {
-    this.orders$ = authService.user$.pipe(
-      map(u => orderService.getOrdersByUser(u.uid))
-    );
+    private db: AngularFireDatabase,
+    private orderService: OrderService, private authService:AuthService) {
+      //this.orders$ = authService.user$.pipe(switchMap(u => orderService.getOrdersByUser(u.uid)));    
+    }
+
+  ngOnInit() {
+      this.userSubscription = this.authService.user$.subscribe(user => (this.getOrders(user.uid)));     
   }
 
-  // ngOnInit() {
-  //   this.userId = "WRJEx7gznHWB5rYJKiZBwin2KNE2";
-  //   this.getOrders();
-  // }
+  private getOrders(userId : string){
+    
+    this.subscription = this.orderService
+    .getOrdersByUser(userId)    
+    .valueChanges()
+    .subscribe(orders => (this.orders = orders));
 
-  // private getOrders() {
-
-  //   if (!this.userId) return;
-  //   this.subscription = this.orderService
-  //     .getOrdersByUser(this.userId)
-  //     .valueChanges()
-  //     .subscribe(orders => (this.orders = orders));
-  // }
-
-  // ngOnDestroy() {
-  //   this.subscription.unsubscribe();
-  // }
+  }
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+    this.userSubscription.unsubscribe();
+  }
 }
+
